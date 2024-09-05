@@ -1,18 +1,3 @@
----
-output: github_document
----
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
 # smaR: Simple Metagenomic Analysis in R
 
 <!-- badges: start -->
@@ -77,7 +62,7 @@ plot_alpha_diversity(df_alpha, metadata_table, plot_type = "boxplot", plot_varia
 plot_beta_diversity(df_beta$result_dist, metadata_table, plot_variables =  c("study_condition", "antibiotics_current_use"))
 ```
 
-[![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/alpha_diversity_plot_simple.png)] [![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/beta_diversity_plot_simple.png)]
+![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/alpha_diversity_plot_simple.png) ![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/beta_diversity_plot_simple.png)
 
 
 In order to study the association between single features and sample information one can run a differential
@@ -96,7 +81,7 @@ look for consensus results, comparing the output of both MaAsLin2 and MaAsLin3
 ```{r}
 analyse_and_plot_consistent_maaslin_results(out_maas2, out_maas3, pthresh = 0.05, qthresh = 0.1, top_features = 20 )
 ```
-[![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/main_plot.png)]
+![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/main_plot.png)
 
 ### Input data ###
 
