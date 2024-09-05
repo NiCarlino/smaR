@@ -1,0 +1,33 @@
+Package: smaR
+Title: "Simple Metagenomic Analysis in R"
+Year: 2024
+Version: 1.0.0
+Authors@R: c(  person("Niccolo", "Carlino", email = "carlino.nicc@gmail.com", role = c("aut", "cre"), comment=c(ORCID="0009-0004-7409-449X")))
+Depends: R (>= 4.4)
+Description: smaR (Simple Metagenomic Analyses in R) provides a set of tools for basic metagenomic analyses. Starting from merged
+    taxonomic profiles and a metadata table, it centralizes function for data checks, alpha- and beta-diversity analysis, differential abundance
+    analysis and visualization. The package aims to simplify and homogenize common workflows.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown=TRUE)
+RoxygenNote: 7.3.2
+Imports: ggplot2,
+    dplyr,
+    tidyr,
+    VennDiagram,
+    grid,
+    ggnewscale,
+    Maaslin2,
+    maaslin3,
+    tryCatchLog,
+    assertthat,
+    microbiome,
+    rbiom,
+    labdsv,
+    readxl
+Suggests: knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+URL: https://github.com/NiCarlino/smaR
+BugReports: https://github.com/NiCarlino/smaR/issues

@@ -1,0 +1,80 @@
+---
+title: "smaR_tutorial"
+author: Niccolò Carlino
+output: html_document
+date: "2024-09-05"
+vignette: >
+    %\VignetteIndexEntry{Tutorial}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+output_dir <- "~/path/to/output/dir"
+input_dir <- "~/path/to/output/dir"
+
+metadata_table  <- read.table( file.path( input_dir, "ex2_metadata.tsv"), 
+                               comment.char = '#', 
+                               sep = '\t', 
+                               header = TRUE, 
+                               check.names=FALSE,
+                               row.names = 1)
+```
+
+```{r}
+abundance_table <- import_abundance_table(file.path( input_dir, "ex2_abundancetable.tsv"), "tsv", rowtype = "samples")
+```
+
+```{r}
+df_alpha <- calculate_alpha_diversity(abundance_table, metric ="shannon", output_dir = file.path( output_dir, "alpha") )
+```
+
+
+```{r}
+plot_alpha_diversity(df_alpha, metadata_table, plot_type = "violinplot", plot_variables = "study_condition")
+plot_alpha_diversity(df_alpha, metadata_table, plot_type = "boxplot", output_dir = output_dir = file.path( output_dir, "alpha") , plot_variables = c("disease_subtype", "antibiotics_current_use"), file_name = "alpha2.png" )
+```
+
+
+```{r}
+results_beta <- calculate_beta_diversity(abundance_table, metric = "bray-curtis", output_dir = file.path( output_dir, "beta")  )
+beta_dist <- results_beta$result_dist
+
+```
+
+```{r}
+
+plot_beta_diversity(beta_mat = results_beta$result_dist, metadata_table, plot_variables =  c("study_condition", "antibiotics_current_use") , maxit = 50,
+                                output_dir = file.path( output_dir, "beta") , file_name = "beta_diversity_plot.png") 
+
+plot_beta_diversity(beta_mat = beta_dist, metadata_table, plot_variables =  c("disease_subtype", "antibiotics_current_use") , maxit = 50,
+                                output_dir = file.path( output_dir, "beta") , file_name = "beta_diversity_plot2.png") 
+```
+
+```{r}
+var_fix <- c('gender', 'disease', 'disease_subtype', 'antibiotics_current_use', 'age')
+var_ran <- c('subject_id')
+
+out_maas2 <- run_maaslin2(abundance_table, metadata_table, var_fix, var_ran, other_params = list(cores=2), 
+                          output_dir = "~/Desktop/cosmos/results_run11/maaslin2", rowtype="features")
+
+formals(Maaslin2::Maaslin2)
+```
+
+```{r}
+out_maas3 <- run_maaslin3(abundance_table, metadata_table, fixed_effects = var_fix, random_effects = var_ran, other_params = list(cores=1), 
+                          output_dir = file.path( output_dir, "maaslin3") , rowtype = "feature")
+
+```
+
+```{r}
+analyse_and_plot_consistent_maaslin_results(out_maas2, out_maas3, pthresh = 0.05, qthresh = 0.1, top_features = 20, 
+                                            output_dir = file.path( output_dir, "maaslin_consensus") )
+
+```
+
