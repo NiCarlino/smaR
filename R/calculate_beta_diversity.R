@@ -45,7 +45,7 @@ calculate_beta_diversity <- function(abund_table, metric = "bray-curtis", output
         file_path <- file.path(output_dir, file_name)
 
         # Save the result as a CSV file
-        write.csv(result_df, file = file_path, row.names = FALSE)
+        write.csv(result_df, file = file_path, row.names = TRUE)
         message(paste("Beta diversity results saved to", file_path))
     }
 
