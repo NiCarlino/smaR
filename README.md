@@ -114,7 +114,7 @@ and [metadata_table](https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex
 
 smaR generates two types of output files: data tables and
 visualizations. In the repository [inst/outdata](https://github.com/NiCarlino/smaR/tree/main/inst/outdata)
-is reported the output generated with the tutorial from 'vignettes'.
+is reported the output generated with the tutorial from [vignettes](https://github.com/NiCarlino/smaR/tree/main/vignettes).
 
 1. Data output files
     * ``alpha_diversity_matrix.csv``: values of alpha diversity calculated by ``calculate_alpha_diversity()``, table with one row per each sample, one column for each metric
