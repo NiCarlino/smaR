@@ -5,9 +5,10 @@
 
 ## Overview
 
-smaR (Simple Metagenomic Analysis in R) is an R package designed to streamline and simplify metagenomic data analysis workflows.
+smaR (Simple Metagenomic Analysis in R) is an R package designed to streamline and **simplify metagenomic data analysis workflows.**
 It provides a set of tools for processing, analyzing, and visualizing metagenomic sequencing data, making it accessible to
 researchers with varying levels of bioinformatics expertise.
+
 It starts from already calculated and merged taxonomic profiles, i.e. a table with samples as rows and species/OTUs/ASVs/ as columns,
 or viceversa, and numeric values that represent relative abundances. smaR contains functions to easily check the correctness of
 the matrix, calculate alpha- and beta-diversity and, if a valid relative metadata table is provided, can perform Non-metric
@@ -31,14 +32,15 @@ smaR requires an R version > 4.4. See the DESCRIPTION file for the full list of 
 
 ## Usage example
 
-As a demonstration of the function included in smaR, here a basic example. Please look at [vignettes](https://github.com/NiCarlino/smaR/tree/main/vignettes) for a complete demo and tutorial.
+As a demonstration of the function included in smaR, here a basic example. Please look at 
+[vignettes](https://github.com/NiCarlino/smaR/tree/main/vignettes) for a complete demo and tutorial.
 
 ```{r example}
 library(smaR)
 abundance_table <- import_abundance_table("path_to_your_table.tsv", rowtype = "samples")
 ```
-It uploads an abundance table and check that the table is consistent with relative abundance data (e.g. numeric values, normalize, fill NAs)
-and set the correct orientation for the following steps.
+It uploads an abundance table and check that the table is consistent with relative abundance data 
+(e.g. numeric values, normalize, fill NAs) and set the correct orientation for the following steps.
 
 In order to calculate the Shannon Index for all the samples included in the abundance table, run:
 
@@ -56,11 +58,13 @@ df_beta <- calculate_beta_diversity(abundance_table, metric ="shannon")
 ```
 
 and you can plot these results together with metadata, in order to study their behaviour with respective to any variable
+
 ```{r}
 plot_alpha_diversity(df_alpha, metadata_table, plot_type = "boxplot", plot_variables = c("disease_subtype"))
 
 plot_beta_diversity(df_beta$result_dist, metadata_table, plot_variables =  c("study_condition", "antibiotics_current_use"))
 ```
+
 Plot Alpha Diversity      |  Plot Beta Diversity
 :-------------------------:|:-------------------------:
 ![image](/inst/images/alpha_diversity_plot_simple.png) | ![image](/inst/images/beta_diversity_plot_simple.png)
@@ -81,7 +85,7 @@ look for consensus results, comparing the output of both MaAsLin2 and MaAsLin3
 ```{r}
 analyse_and_plot_consistent_maaslin_results(out_maas2, out_maas3, pthresh = 0.05, qthresh = 0.1, top_features = 20 )
 ```
-![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/main_plot.png)
+![image](inst/images/main_plot.png?raw=true)
 
 ### Input data ###
 
@@ -101,14 +105,14 @@ For further analysis, a metadata table can be provided:
     * Possible metadata include disease, country, gender or age.
 
 
-See an example of a an abundance table in input (https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_abundancetable.tsv)
-and a metadata_table (https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_metadata.tsv).
+See an example of a an input [abundance table](https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_abundancetable.tsv)
+and [metadata_table](https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_metadata.tsv).
 
 
 ### Output files ###
 
 smaR generates two types of output files: data tables and
-visualizations. In the repository ['inst/outdata'(https://github.com/NiCarlino/smaR/tree/main/inst/outdata)]
+visualizations. In the repository [inst/outdata](https://github.com/NiCarlino/smaR/tree/main/inst/outdata)
 is reported the output generated with the tutorial from 'vignettes'.
 
 1. Data output files
@@ -138,10 +142,15 @@ This project is licensed under the [GPL-3 License](https://github.com/NiCarlino/
 
 ## References
 
-William A. Nickols, Jacob T. Nearing, Kelsey N. Thompson, Jiaxian Shen, Curtis Huttenhower MaAsLin 3: Refining and extending generalized multivariate linear models for meta-omic association discovery. (In progress).
+William A. Nickols et al., [MaAsLin 3: Refining and extending generalized multivariate linear models for meta-omic association discovery.](https://github.com/biobakery/biobakery/wiki/MaAsLin3), (In progress).
 
-Mallick H, Rahnavard A, McIver LJ, Ma S, Zhang Y, Nguyen LH, Tickle TL, Weingart G, Ren B, Schwager EH, Chatterjee S, Thompson KN, Wilkinson JE, Subramanian A, Lu Y, Waldron L, Paulson JN, Franzosa EA, Bravo HC, Huttenhower C (2021). [Multivariable Association Discovery in Population-scale Meta-omics Studies](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009442). PLoS Computational Biology, 17(11):e1009442.
+Mallick H. et al., [Multivariable Association Discovery in Population-scale Meta-omics Studies](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009442), PLoS Computational Biology, (2021), 17(11):e1009442.
 
+Carlino et al., [Unexplored microbial diversity from 2,500 food metagenomes and links with the human microbiome](https://linkinghub.elsevier.com/retrieve/pii/S009286742400833X), Cell, 2024 (https://doi.org/10.1016/j.cell.2024.07.039).
+
+[Human Microbiome Project Consortium. A framework for human microbiome research.](https://www.nature.com/articles/nature11209) Nature. 2012 Jun 13;486(7402):215-21. doi: 10.1038/nature11209. PMID: 22699610; PMCID: PMC3377744.
+
+Blanco-Miguez A. et al., [Extending and improving metagenomic taxonomic profiling with uncharacterized species using MetaPhlAn 4.](https://www.nature.com/articles/s41587-023-01688-w) , Nature Biotechnology (2023)
 
 ## Contact
 
