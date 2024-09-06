@@ -1,6 +1,7 @@
 # smaR: Simple Metagenomic Analysis in R
 
 <!-- badges: start -->
+![image](https://img.shields.io/badge/R-276DC3?style=for-the-badge&logo=r&logoColor=white)
 <!-- badges: end -->
 
 ## Overview
@@ -32,8 +33,8 @@ smaR requires an R version > 4.4. See the DESCRIPTION file for the full list of 
 
 ## Usage example
 
-As a demonstration of the function included in smaR, here a basic example. Please look at 
-[vignettes](https://github.com/NiCarlino/smaR/tree/main/vignettes) for a complete demo and tutorial.
+As a demonstration of the function included in smaR, here a basic example. Please look here  
+for a complete [demo](https://github.com/NiCarlino/smaR/wiki) and [tutorial](https://github.com/NiCarlino/smaR/tree/main/vignettes).
 
 ```{r example}
 library(smaR)
@@ -132,7 +133,8 @@ similarly to what one would have running the single tool.
 
 ## Running a demo
 
-See [vignettes](https://github.com/NiCarlino/smaR/tree/main/vignettes).
+Please look here  
+for a complete [demo](https://github.com/NiCarlino/smaR/wiki) and [tutorial](https://github.com/NiCarlino/smaR/tree/main/vignettes).
 
 
 ## License
