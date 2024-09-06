@@ -61,9 +61,9 @@ plot_alpha_diversity(df_alpha, metadata_table, plot_type = "boxplot", plot_varia
 
 plot_beta_diversity(df_beta$result_dist, metadata_table, plot_variables =  c("study_condition", "antibiotics_current_use"))
 ```
-
-![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/alpha_diversity_plot_simple.png) ![image](https://github.com/NiCarlino/smaR/tree/main/inst/images/beta_diversity_plot_simple.png)
-
+Plot Alpha Diversity      |  Plot Beta Diversity
+:-------------------------:|:-------------------------:
+![image](/inst/images/alpha_diversity_plot_simple.png) | ![image](/inst/images/beta_diversity_plot_simple.png)
 
 In order to study the association between single features and sample information one can run a differential
 abundance analysis, identifying among the metadata which are the important variables with a fixed effect and what
@@ -100,11 +100,16 @@ For further analysis, a metadata table can be provided:
     * Formatted with variables as columns and samples as rows.
     * Possible metadata include disease, country, gender or age.
 
+
+See an example of a an abundance table in input (https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_abundancetable.tsv)
+and a metadata_table (https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_metadata.tsv).
+
+
 ### Output files ###
 
 smaR generates two types of output files: data tables and
-visualizations. In the repository 'inst/outdata'is reported
-the output generated with the tutorial from 'vignettes'.
+visualizations. In the repository ['inst/outdata'(https://github.com/NiCarlino/smaR/tree/main/inst/outdata)]
+is reported the output generated with the tutorial from 'vignettes'.
 
 1. Data output files
     * ``alpha_diversity_matrix.csv``: values of alpha diversity calculated by ``calculate_alpha_diversity()``, table with one row per each sample, one column for each metric
@@ -128,7 +133,7 @@ See [vignettes](https://github.com/NiCarlino/smaR/tree/main/vignettes).
 
 ## License
 
-This project is licensed under the GPL-3 License - see the LICENSE file for details.
+This project is licensed under the [GPL-3 License](https://github.com/NiCarlino/smaR/blob/main/LICENSE).
 
 
 ## References
@@ -141,4 +146,5 @@ Mallick H, Rahnavard A, McIver LJ, Ma S, Zhang Y, Nguyen LH, Tickle TL, Weingart
 ## Contact
 
 Niccolò Carlino
+
 URL: https://github.com/NiCarlino/smaR
