@@ -5,8 +5,8 @@ Version: 1.0.0
 Authors@R: c(  person("Niccolo", "Carlino", email = "carlino.nicc@gmail.com", role = c("aut", "cre"), comment=c(ORCID="0009-0004-7409-449X")))
 Depends: R (>= 4.4)
 Description: smaR (Simple Metagenomic Analyses in R) provides a set of tools for basic metagenomic analyses. Starting from merged
-    taxonomic profiles and a metadata table, it centralizes function for data checks, alpha- and beta-diversity analysis, differential abundance
-    analysis and visualization. The package aims to simplify and homogenize common workflows.
+    taxonomic profiles and a metadata table, it provides functions for data checks, alpha- and beta-diversity analysis, differential abundance
+    analysis and visualization. The package aims to simplify and homogenize common workflows, centralizing the necessary tools.
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown=TRUE)
@@ -25,6 +25,8 @@ Imports: ggplot2,
     rbiom,
     labdsv,
     readxl
+biocViews: microbiome
+Remotes: biobakery/Maaslin2, biobakery/maaslin3
 Suggests: knitr,
     rmarkdown,
     testthat
