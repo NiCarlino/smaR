@@ -10,13 +10,180 @@ vignette: >
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Introduction ##
+
+[**smaR**] (Simple Metagenomic Analyses in R) (https://github.com/NiCarlino/smaR) provides a set of tools for basic metagenomic analyses. Starting from merged
+    taxonomic profiles and a metadata table, it provides functions for data checks, alpha- and beta-diversity analysis, differential abundance
+    analysis and visualization. The package aims to simplify and homogenize common workflows, centralizing the necessary tools
+    
+## Contents
+* [0. Installation](#installation)
+    * [0.1 Installing R](#installing-r)
+    * [0.2 Installing Dependencies](#installing-dependencies)
+    * [0.3 Installing smaR](#installing-smar)
+* [1. smaR data](#smaR-input)
+    * [1.1 smaR input](#smaR-input)
+    * [1.2 smaR output](#smaR-output)
+    * [1.3 Generate input and Tutorial data](#generate-input)
+* [2. Community Analysis: Alpha- and Beta-diversity](#community)
+    * [2.1 Alpha-diversity](#alpha-diversity)
+    * [2.2 Beta-diversity](#beta-diversity)
+* [3. Differential Abundance Analysis](#differential-abundance-analysis)
+    * [3.1 MaAsLin2](#maaslin2)
+    * [3.2 MaAsLin3](#maaslin3)
+    * [3.3 MaAsLin consensus](#consensus-maaslin)
+    
+
+## 0 Installation {#installation}
+
+### 0.1 Installing R {#installing-r}
+
+[R](https://www.r-project.org/) is a programming language specializing
+in statistical computing and graphics. You can download and install the f
+ree R software environment [here](https://cloud.r-project.org/). 
+Note that you should download the latest release, or at least version >=4.4.
+Check the correct installed version, running:
+
+```{R, eval=FALSE, cache = FALSE}
+sessionInfo()
 ```
+
+
+[RStudio](https://rstudio.com/products/rstudio/) is a freely available
+IDE (integrated development environment) for R. It is not necessary neither
+to run R nor to run this tutotial, but it often makes life easier.
+
+### 0.2 Installing Dependencies {#installing-dependencies}
+
+The package smaR has severale dependencies, as reported in the [DESCRIPTION](https://github.com/NiCarlino/smaR/blob/main/DESCRIPTION)
+file. Those are easily managed using the [pacman](https://cran.r-project.org/web/packages/pacman) R package,
+which also takes care of packages dependencies, as well as packages from sources
+other than CRAN, such as Bioconductor or GitHub.
+
+```{r}
+if (!require("pacman"))   install.packages("pacman")
+pacman::p_load(
+    dplyr,
+    tidyr,
+    VennDiagram,
+    grid,
+    ggnewscale,
+    tryCatchLog,
+    assertthat,
+    rbiom,
+    labdsv,
+    readxl)
+```
+
+
+```{r}
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("microbiome")
+# or 
+p_install(microbiome, try.bioconductor = TRUE, update.bioconductor = TRUE)
+```
+
+
+```{r}
+library("devtools")
+install_github("biobakery/maaslin3")
+install_github("biobakery/Maaslin2")
+# or
+p_install_gh("trinker/pacman")
+p_install_gh("trinker/pacman")
+```
+
+
+### 0.3 Installing smaR {#installing-smar}
+
+Similarly, the installation of smaR is straightforward.
+
+```{r}
+library("devtools")
+install_github("NiCarlino/smaR")
+# or
+p_install_gh("NiCarlino/smaR")
+```
+
+In case of any issue, you can try to download the [package archive](download link) and proceed with the installation.
+
+
+## 1. smaR data {#smaR-input}
+
+### 1.1 smaR input {#smaR-input}
+
+smaR requires one input file:
+
+1. Relative abundance data frame
+    * Formatted with features as columns and samples as rows.
+    * The transpose of this format is also okay.
+    * Possible features include taxonomy (i.e. species/OTUs/ASVs) or genes (though not for all functions)
+    * These can be relative abundances, not necessarily normalized.
+    * This can be a filepath to a comma-delimited (csv), tab-delimited (tsv) or excel file.
+
+To fully exploit further analysis, a metadata table should be provided:
+
+2. Metadata data frame
+    * Formatted with variables as columns and samples as rows.
+    * Possible metadata include disease, country, gender or age.
+    
+Refer to (#generate-input)  for methods to generate them and example tables. 
+    
+### 1.2 smaR output {#smaR-output}
+
+
+smaR generates two types of output files: data tables and
+visualizations. In the repository 'inst/outdata'(https://github.com/NiCarlino/smaR/tree/main/inst/outdata) is reported
+the output generated with the tutorial from 'vignettes'.
+
+1. Data output files
+    * ``alpha_diversity_matrix.csv``: values of alpha diversity calculated by ``calculate_alpha_diversity()``, table with one row per each sample, one column for each metric
+    * ``beta_diversity_matrix.csv``: values of beta diversity calculated by ``calculate_beta_diversity()``, table with one row and one column per each sample, symmetric matrix with 0 diagonal.
+    * ``common_features_maaslin2_maaslin3.csv``: all the statistical significant common association given by the comparison of the output of Maaslin2 vs MaAsLin3, i.e. species for which the tools show same sign of beta with respect to the same variable and the same variable value and both have p-value < p_threshold and q_value (FDR-corrected p-value) < q_threshold. Calculated by ``maas_consistency()``.
+    * ``top_common_features_maaslin2_maaslin3.csv``: association from ``common_features_maaslin2_maaslin3.csv`` with the highest (in absolute value) beta-coefficient. Number of top N is chosen by the user as parameter of ``maas_consistency()`` inside of ``analyse_and_plot_consistent_maaslin_results()``.
+
+2. Visualization output files
+    * ``alpha_diversity_plot.png``: boxplot or violinplot of the distrubution of the alpha diversity according to chosen metadata variables.
+    * ``beta_diversity_plot.png``: 2-dimensional scatterplot of the NMDS of the beta diversity.
+    * ``venn_diagram_maaslin.png``: Numerical representation of the statistical significant associations found by MaAsLin2 and MaAsLin3. The intersection represents the dimension of ``common_features_maaslin2_maaslin3.csv``.
+    * ``consensus_maaslin_plot_top_features.png``: representation of the ``top_common_features_maaslin2_maaslin3.csv`` reporting species, variable, value and quantification of the association as well as of its uncertainty and statistical significance.
+
+In addition, the output representing the results given by the models of MaAsLin2 and MaAsLin3 can be saved in output,
+similarly to what one would have running the single tool. Output generated by the following example
+is reported [here](https://github.com/NiCarlino/smaR/tree/main/inst/outdata) for the tables and 
+[here](https://github.com/NiCarlino/smaR/tree/main/inst/images).
+
+
+### 1.3 Generate input and Tutorial data {#generate-input}
+
+Usually, the metagenomic computational pipeline starts from the raw reads of a sequencer.
+In order to reach the input file of smaR, i.e. a relative abundance table, one has to
+performs several preliminary steps such as reads pre-processing, sample profiling and 
+merging profiles. Among the vastity of tools available, two examples (used to generate 
+the example input tables) are: [preprocessing](https://github.com/SegataLab/preprocessing)
+and [taxonomic_profiling](https://github.com/biobakery/MetaPhlAn/wiki/MetaPhlAn-4#installation)
+[(Blanco-Míguez A. et al., 2023)](https://www.nature.com/articles/s41587-023-01688-w)
+
+
+For the tutorial and the [demo](link), I considered part of the cohorts created by the Human
+Microbiome Project 2 (HMP2), whose raw data can be downloaded from https://ibdmdb.org/. The metadata and
+taxonomic profiles are those generated in the [cFMD study](https://github.com/SegataLab/cFMD)
+and available in the relative 
+[supplementary material](https://www.cell.com/cms/10.1016/j.cell.2024.07.039/attachment/a04564e2-d288-4530-bfeb-5c45e3293353/mmc4.zip)
+[(Carlino N. et al., 2024)](https://www.sciencedirect.com/science/article/pii/S009286742400833X).
+
+In this example, the HMP2 cohort has been delimited to either healthy controls or patients 
+with inflammatory bowel disease (IBD), which can be distinguished between Crohn's disease (CD) and Ulcerative colitis (UC). 
+In this restricted cohort counting 792 adults from the USA, of different age and sex, MetaPhlAn4
+found 1521 different microbial species.
+
+[Metadata table](https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_metadata.tsv) can be imported simply as any table with headers as metadata variable 
+and rownames given by the sample (same names that must be present in the abundance table)
 
 ```{r}
 output_dir <- "~/path/to/output/dir"
-input_dir <- "~/path/to/output/dir"
+input_dir <- "~/path/to/input/dir"
 
 metadata_table  <- read.table( file.path( input_dir, "ex2_metadata.tsv"), 
                                comment.char = '#', 
@@ -26,55 +193,253 @@ metadata_table  <- read.table( file.path( input_dir, "ex2_metadata.tsv"),
                                row.names = 1)
 ```
 
+The [abundance table](https://github.com/NiCarlino/smaR/blob/main/inst/extdata/ex_abundancetable.tsv) 
+instead has some constraints, as previously explained in (#smaR-input). This smaR function
+import the given table and checks that all the basic rules are matched, correct the orientation if needed,
+fill NAs, and eventually normalize the abundances.
+
 ```{r}
+library("smaR")
 abundance_table <- import_abundance_table(file.path( input_dir, "ex2_abundancetable.tsv"), "tsv", rowtype = "samples")
 ```
 
+Eventually, abundance_table is a matrix with features as rows and samples as columns, with the sum of the
+relative abundances =1 for each sample.
+
+
+## 2. Community Analysis: Alpha- and Beta-diversity {#community}
+
+Starting from the taxonomic profiles, i.e. the collection of species found in each metagenome
+with their relative abundances, one can perform two main types of community-wise analysis:
+considering each sample individually (alpha-diversity)(#alpha-diversity) or comparing the composition of each
+sample against each other (beta-diversity)(#beta-diversity).
+
+### 2.1 Alpha-diversity {#alpha-diversity}
+
+The first analysis that can be done having the complete set of taxonomic profiles for our cohort
+is the alpha-diversity, i.e. the calculation of diversity inside each sample/microbiome. This can
+be simply calculated as the number of different species present (richness/observed) or one can 
+calculate some more advanced metrics, taking into account also the relative abundances of each species,
+with the Shannon-Index or the (Gini-)Simpson-Index. Being a measure per sample, the function 
+``calculate_alpha_diversity()`` of the smaR package allows also the calculation of more than one metric
+and reported in the same output dataframe.
+
 ```{r}
-df_alpha <- calculate_alpha_diversity(abundance_table, metric ="shannon", output_dir = file.path( output_dir, "alpha") )
+# Calculate the Shannon Index for all the samples, individually
+df_alpha <- calculate_alpha_diversity(abundance_table, metric ="shannon")
+# Calculate the three available metrics for all the samples, individually, and 
+# save the output table in output_dir/alpha/alpha_diversity_matrix.csv
+df_alpha <- calculate_alpha_diversity(abundance_table, 
+                                      metric =c("shannon", "simpson", "richness"), 
+                                      output_dir = file.path( output_dir, "alpha"), 
+                                      file_name = "alpha_diversity_matrix.csv")
 ```
 
+The output is a dataframe with samples as rows and each metric calculated as column.
+**Note that if a path is not feed into output_dir parameter, the output is not saved and 
+remains in the R session environment. This holds for all the smaR functions, except
+MaAsLin standard output. The output_dir must be a valid path name, but it is not necessary 
+that already exists.**
+
+
+This type of metric is usually visualised grouping the samples by some variable in the
+metadata and comparing the distribution across variable's value. The plot of this data
+is easily performed with ``plot_alpha_diversity()``. In case of matrices with more than
+one metric, it considers only the first column (i.e. the first metric chosen in 
+``calculate_alpha_diversity()``).
 
 ```{r}
-plot_alpha_diversity(df_alpha, metadata_table, plot_type = "violinplot", plot_variables = "study_condition")
-plot_alpha_diversity(df_alpha, metadata_table, plot_type = "boxplot", output_dir = output_dir = file.path( output_dir, "alpha") , plot_variables = c("disease_subtype", "antibiotics_current_use"), file_name = "alpha2.png" )
+# 1-variable violinplot
+plot_alpha_diversity(df_alpha, 
+                     metadata_table, 
+                     plot_type = "violinplot", 
+                     plot_variables = "study_condition")
+
+# 3-variables boxplot
+plot_alpha_diversity(df_alpha, 
+                     metadata_table, 
+                     plot_type = "boxplot", 
+                     output_dir = file.path( output_dir, "alpha") , 
+                     plot_variables = c("disease_subtype", "antibiotics_current_use", "gender"), 
+                     file_name = "alpha2.png" )
+
 ```
 
+This code produce the following plots, respectively:
+
+1-variable Violinplot Alpha Diversity |  2-variables boxplot Alpha Diversity
+:-------------------------:|:-------------------------:
+![image](/inst/images/alpha_diversity_violinplot.png) | ![image](/inst/images/alpha_diversity_plot3.png)
+
+
+### 2.2 Beta-diversity](#beta-diversity)
+
+If we want to compare the samples among each other, we have to calculate the beta-diversity.
+Also in this case, several metrics are available and best suitable for each case: in smaR the user
+can choose between "bray-curtis" and "jaccard" dissimilarities, both commonly used in
+microbiome studies. 
 
 ```{r}
-results_beta <- calculate_beta_diversity(abundance_table, metric = "bray-curtis", output_dir = file.path( output_dir, "beta")  )
+# The parameter are similar to calculate_alpha_diversity
+results_beta <- calculate_beta_diversity(abundance_table, 
+                                         metric = "bray-curtis", 
+                                         output_dir = file.path( output_dir, "beta")  )
+
+# The output object comprises a dataframe, useful for simple visualization, 
+# that is the one saved in output, if chosen
 beta_dist <- results_beta$result_dist
-
+# It also includes a dist() object, necessary for the followung steps
+# of the pipeline
+beta_dist <- results_beta$result_dist
 ```
+
+The dataframe, representing all the distance measures among samples, is a symmetric NxN matrix, where
+N is the number of samples, with a diagonal full of 0. It is also the object saved when an output_dir 
+parameter is fed to the function. Importantly, the dist object can be used for the following
+**Non-metric Multidimensional Scaling (NMDS)** a mathematical/computational technique to lower the
+dimension of the matrix to Nx2, such that the points/samples can be visualized in a plane. The NMDS
+is a step performed inside ``plot_beta_diversity()``, which gives in output a scatterplot with the
+annotation of a maximum of 2 variables (colors and shapes of the points).
 
 ```{r}
+# Trying to distinguish healthy vs IBD
+plot_beta_diversity(beta_dist, 
+                    metadata_table, 
+                    plot_variables =  c("study_condition", "antibiotics_current_use") , 
+                    maxit = 50) #the maxit is the maximum number of iteration performed by NMDS algorithm 
 
-plot_beta_diversity(beta_mat = results_beta$result_dist, metadata_table, plot_variables =  c("study_condition", "antibiotics_current_use") , maxit = 50,
-                                output_dir = file.path( output_dir, "beta") , file_name = "beta_diversity_plot.png") 
-
-plot_beta_diversity(beta_mat = beta_dist, metadata_table, plot_variables =  c("disease_subtype", "antibiotics_current_use") , maxit = 50,
-                                output_dir = file.path( output_dir, "beta") , file_name = "beta_diversity_plot2.png") 
+# Distinguish IBD types, could allow a more granular representation, taking into account antibiotics use
+plot_beta_diversity(beta_mat = beta_dist, 
+                    metadata_table, 
+                    plot_variables =  c("disease_subtype", "antibiotics_current_use") , 
+                    maxit = 50,
+                    output_dir = file.path( output_dir, "beta") , 
+                    file_name = "beta_diversity_plot2.png") 
 ```
+
+
+This code produce the following plots, respectively:
+
+Scatterplot Beta Diversity |  Scatterplot Beta Alpha Diversity
+:-------------------------:|:-------------------------:
+![image](/inst/images/beta_diversity_plot.png) | ![image](/inst/images/beta_diversity_plot2.png)
+
+
+## 3. Differential Abundance Analysis](#differential-abundance-analysis)
+
+The analysis performed so far were relative to measure and compare whole-microbiome
+across different samples. Nonetheless, in many cases the user wants to find and study
+differences at the single-feature level, using for example **Differential Abundances
+Analysis (DAA)**. DAA is a method used to identify differences in the abundances of 
+individual features (such as species or OTUs) between two or more groups, 
+most frequently treatment versus control groups. The ultimate goal of DAA is to identify 
+biomarkers of a certain cohort connected to phenotype or condition, 
+reducing dimensions of complex system to its isolated components.
+
+Even for this specific analysis, many tools are already available, each of which with its
+own strength and weaknesses (and models). In smaR two of them have been included:
+[MaAsLin2](https://github.com/biobakery/Maaslin2/tree/master) 
+(Microbiome Multivariable Association with Linear Models) 
+[(Mallick H. et al.,2021)](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009442)
+and
+[MaAsLin3](https://github.com/biobakery/biobakery/wiki/MaAsLin3) 
+[(William A. Nickols et al., In progress)].
+In addition, smaR contains a function to automatically compare the
+outputs of these tools and calculate and visualize the consensus
+results.
+
+### 3.1 MaAsLin2(#maaslin2)
+
+MaAsLin2 is a native R package, that relies on general linear models to support
+modern microbiome epidemiological studies, including cross-sectional and longitudinal, 
+along with a variety of filtering, normalization, and transform methods. It has a wide
+range of parameters, hence the user is invited to study its [wiki](https://github.com/biobakery/Maaslin2/tree/master?tab=readme-ov-file) 
+to best adapt to the personal necessities. Nonetheless, we selected the most common
+case study to simplify the choice of the user, that has to pay attention to the 
+different variable types in the model: fixed effects and random effects. In studies
+where there are longitudinal samplings or multiple location (e.g. oral and stool), 
+i.e. more samples per subject, it is suggested to include these variables in the random
+effects. Care must be taken also in case of correlated variables.
+
 
 ```{r}
 var_fix <- c('gender', 'disease', 'disease_subtype', 'antibiotics_current_use', 'age')
 var_ran <- c('subject_id')
 
-out_maas2 <- run_maaslin2(abundance_table, metadata_table, var_fix, var_ran, other_params = list(cores=2), 
-                          output_dir = "~/Desktop/cosmos/results_run11/maaslin2", rowtype="features")
-
-formals(Maaslin2::Maaslin2)
-```
-
-```{r}
-out_maas3 <- run_maaslin3(abundance_table, metadata_table, fixed_effects = var_fix, random_effects = var_ran, other_params = list(cores=1), 
-                          output_dir = file.path( output_dir, "maaslin3") , rowtype = "feature")
+out_maas2 <- run_maaslin2(abundance_table, 
+                          metadata_table, 
+                          var_fix, 
+                          var_ran, # not necessary if not present
+                          other_params = list(cores=2), 
+                          output_dir = file.path( output_dir, "maaslin2"), 
+                          rowtype="features")
 
 ```
 
+While the syntax is simplified (at cost of some possibility of tuning), all the default 
+settings can be changed filling the list of *other_params*, which directly modifies the 
+parameters in the maaslin2 input. The output of ``run_maaslin2()``
+is any different from the original, in sense that everything is exported as default, 
+such as the summary plot:
+
+![image](/inst/images/heatmap.png) 
+
+### 3.2 MaAsLin3](#maaslin3)
+
+MaAsLin3 is the next generation of the tool: relative to MaAsLin 2, MaAsLin 3 
+introduces the **ability to quantify and test for both abundance and prevalence** 
+associations while better accounting for compositionality. These improvements
+should lead to more trustworthy results, especially when the statistical values
+*pval_joint* and *qval_joint* are considered, i.e. when the significance is given
+by the models accounting for both abundance and prevalence (but the user can 
+decide to use one of these individually).
+
 ```{r}
-analyse_and_plot_consistent_maaslin_results(out_maas2, out_maas3, pthresh = 0.05, qthresh = 0.1, top_features = 20, 
+out_maas3 <- run_maaslin3(abundance_table, 
+                          metadata_table, 
+                          fixed_effects = var_fix, 
+                          random_effects = var_ran, 
+                          other_params = list(cores=1), 
+                          output_dir = file.path( output_dir, "maaslin3") , 
+                          rowtype = "feature")
+
+```
+
+Similarly, *other_params* allows to tune any input parameter if the default 
+setting are not appropriate, and also the output of ``run_maaslin3()``
+is exported as default, such as the summary plot:
+
+![image](/inst/images/summary_plot.png) 
+
+### 3.3 MaAsLin consensus](#consensus-maaslin)
+
+Something that can be a little less straightforward when dealing with MaAsLin is
+the ability to edit and further analyse the output. We automatised these steps,
+and in particular the comparison of the statistically significant results among
+the tools. The coherence of the association is evaluated taking into account
+not only feature (species) and metadata, but also metadata value and direction
+of the association.
+
+```{r}
+analyse_and_plot_consistent_maaslin_results(out_maas2, 
+                                            out_maas3, 
+                                            pthresh = 0.05, 
+                                            qthresh = 0.1, 
+                                            top_features = 20, 
                                             output_dir = file.path( output_dir, "maaslin_consensus") )
-
 ```
+
+In case of extreme coherence, the user can filter the output main plot
+deciding the number of top feature to show, i.e. the features showing
+the strongest (in absolute value) coefficient with any metadata chose 
+among the fixed effects. Both tables reporting all the coherent 
+associations and their coefficient and statistics for each tool, and the
+plots are saved. 
+
+A main visualization, representing the coherence:
+
+![image](/inst/images/venn_diagram_maaslin.png) 
+and one more specific, with the top_features:
+
+![image](/inst/images/consensus_maaslin_plot_top_features.png) 
 
