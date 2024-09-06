@@ -133,8 +133,7 @@ similarly to what one would have running the single tool.
 
 ## Running a demo
 
-Please look here  
-for a complete [demo](https://github.com/NiCarlino/smaR/wiki) and [tutorial](https://github.com/NiCarlino/smaR/tree/main/vignettes).
+Please look here for a complete [demo](https://github.com/NiCarlino/smaR/wiki) and [tutorial](https://github.com/NiCarlino/smaR/tree/main/vignettes).
 
 
 ## License
